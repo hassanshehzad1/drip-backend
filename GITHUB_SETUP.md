@@ -1,7 +1,7 @@
 # GitHub Repository Description & Setup
 
 ## Short Description (GitHub About field — 160 chars max)
-Production-grade Fashion Reels REST API. Node.js + Express + MongoDB + Socket.io + Stripe + AI recommendations. 80+ endpoints, real-time chat, admin panel.
+    Production-grade Fashion Reels REST API. Node.js + Express + MongoDB + Socket.io + Stripe + AI recommendations. 80+ endpoints, real-time chat, admin panel.
 
 ## Topics/Tags (add these in GitHub)
 nodejs expressjs mongodb mongoose socketio stripe jwt fashion ecommerce rest-api mern-stack real-time-chat ai-recommendations imagekit

@@ -1,0 +1,283 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);padding:16px 0;color:var(--color-text-primary)}
+.phase{margin-bottom:24px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden}
+.phase-header{padding:12px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+.phase-header:hover{background:var(--color-background-secondary)}
+.phase-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;flex-shrink:0}
+.phase-title{font-size:14px;font-weight:500;flex:1}
+.phase-tag{font-size:11px;font-weight:500;padding:2px 8px;border-radius:4px}
+.phase-body{padding:0 16px 14px;display:none}
+.phase-body.open{display:block}
+.step{display:flex;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.step:last-child{border-bottom:none}
+.step-num{font-size:11px;font-weight:500;color:var(--color-text-tertiary);min-width:22px;padding-top:2px}
+.step-content{flex:1}
+.step-title{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:3px}
+.step-desc{font-size:12px;color:var(--color-text-secondary);line-height:1.5}
+.step-files{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.file-tag{font-size:10px;font-family:var(--font-mono);padding:2px 6px;border-radius:3px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary)}
+.postman-tag{font-size:10px;font-weight:500;padding:2px 7px;border-radius:3px;background:#FAEEDA;color:#854F0B;border:0.5px solid #EF9F27;margin-left:4px}
+.check-tag{font-size:10px;font-weight:500;padding:2px 7px;border-radius:3px;background:#EAF3DE;color:#3B6D11;border:0.5px solid #97C459}
+.toggle-icon{font-size:12px;color:var(--color-text-tertiary);transition:transform .2s}
+.toggle-icon.open{transform:rotate(90deg)}
+@media(prefers-color-scheme:dark){
+.postman-tag{background:#412402;color:#EF9F27;border-color:#854F0B}
+.check-tag{background:#173404;color:#97C459;border-color:#3B6D11}
+}
+
+.p-purple .phase-header{background:#EEEDFE}
+.p-purple .phase-num{background:#534AB7;color:#fff}
+.p-purple .phase-tag{background:#534AB7;color:#fff}
+.p-teal .phase-header{background:#E1F5EE}
+.p-teal .phase-num{background:#0F6E56;color:#fff}
+.p-teal .phase-tag{background:#0F6E56;color:#fff}
+.p-coral .phase-header{background:#FAECE7}
+.p-coral .phase-num{background:#993C1D;color:#fff}
+.p-coral .phase-tag{background:#993C1D;color:#fff}
+.p-pink .phase-header{background:#FBEAF0}
+.p-pink .phase-num{background:#993556;color:#fff}
+.p-pink .phase-tag{background:#993556;color:#fff}
+.p-blue .phase-header{background:#E6F1FB}
+.p-blue .phase-num{background:#185FA5;color:#fff}
+.p-blue .phase-tag{background:#185FA5;color:#fff}
+.p-amber .phase-header{background:#FAEEDA}
+.p-amber .phase-num{background:#854F0B;color:#fff}
+.p-amber .phase-tag{background:#854F0B;color:#fff}
+.p-green .phase-header{background:#EAF3DE}
+.p-green .phase-num{background:#3B6D11;color:#fff}
+.p-green .phase-tag{background:#3B6D11;color:#fff}
+.p-red .phase-header{background:#FCEBEB}
+.p-red .phase-num{background:#A32D2D;color:#fff}
+.p-red .phase-tag{background:#A32D2D;color:#fff}
+
+@media(prefers-color-scheme:dark){
+.p-purple .phase-header{background:#26215C}
+.p-teal .phase-header{background:#04342C}
+.p-coral .phase-header{background:#4A1B0C}
+.p-pink .phase-header{background:#4B1528}
+.p-blue .phase-header{background:#042C53}
+.p-amber .phase-header{background:#412402}
+.p-green .phase-header{background:#173404}
+.p-red .phase-header{background:#501313}
+}
+</style>
+
+<div id="root"></div>
+
+<script>
+const phases = [
+  {
+    color:'p-purple', num:'01',
+    title:'Project setup & foundation',
+    tag:'Setup',
+    steps:[
+      {n:'1.1', title:'Initialize Node.js project', desc:'npm init, install core deps: express, mongoose, dotenv, cors, helmet, morgan, express-rate-limit, express-validator', files:['package.json','server.js','.env','.gitignore'], postman:false},
+      {n:'1.2', title:'Configure server.js', desc:'Express app setup, middleware stack (cors, helmet, morgan, json parser, rate limiter), error handler, listen on PORT', files:['server.js'], postman:false},
+      {n:'1.3', title:'MongoDB connection', desc:'Mongoose connect with retry logic, log success/failure, graceful shutdown on SIGTERM', files:['config/db.js'], postman:false},
+      {n:'1.4', title:'Environment variables', desc:'All secrets in .env: PORT, MONGO_URI, JWT_SECRET, JWT_REFRESH_SECRET, IMAGEKIT keys, STRIPE_KEY, CLIENT_URL', files:['.env'], postman:false},
+      {n:'1.5', title:'Global error handler', desc:'Async error wrapper, custom AppError class, centralised error middleware (dev vs prod mode response)', files:['middleware/error.middleware.js','utils/AppError.js','utils/catchAsync.js'], postman:false},
+      {n:'1.6', title:'Postman workspace setup', desc:'Create Drip API collection, add environment vars: {{BASE_URL}}, {{USER_TOKEN}}, {{PARTNER_TOKEN}}, {{ADMIN_TOKEN}}', files:[], postman:true},
+    ]
+  },
+  {
+    color:'p-teal', num:'02',
+    title:'User authentication',
+    tag:'Auth',
+    steps:[
+      {n:'2.1', title:'User model', desc:'Schema: name, email (unique, lowercase), password (bcrypt, select:false), avatar, role, stylePreferences, isActive, refreshToken, timestamps', files:['models/User.js'], postman:false},
+      {n:'2.2', title:'Register endpoint', desc:'POST /api/auth/register — express-validator checks (name required, email valid, password min 8 + strength), hash password, sign JWT + refresh token, return user object (no password)', files:['routes/auth.routes.js','controllers/auth.controller.js'], postman:true},
+      {n:'2.3', title:'Login endpoint', desc:'POST /api/auth/login — validate email/password, compare bcrypt, sign tokens, store refresh token in DB, return tokens', files:['controllers/auth.controller.js'], postman:true},
+      {n:'2.4', title:'Refresh token endpoint', desc:'POST /api/auth/refresh — verify refresh token from body/cookie, issue new access token, rotate refresh token', files:['controllers/auth.controller.js'], postman:true},
+      {n:'2.5', title:'Logout endpoint', desc:'POST /api/auth/logout — clear refresh token from DB and cookie', files:['controllers/auth.controller.js'], postman:true},
+      {n:'2.6', title:'Auth middleware (user)', desc:'Verify Bearer JWT, attach req.user, handle expired/invalid token errors with proper 401 messages', files:['middleware/authUser.middleware.js'], postman:false},
+      {n:'2.7', title:'Get profile + update profile', desc:'GET /api/auth/me (protected), PATCH /api/auth/update-profile — update name, avatar, stylePreferences. Validate fields.', files:['controllers/auth.controller.js'], postman:true},
+      {n:'2.8', title:'Change password', desc:'PATCH /api/auth/change-password — verify old password, validate new password strength, hash and save', files:['controllers/auth.controller.js'], postman:true},
+    ]
+  },
+  {
+    color:'p-purple', num:'03',
+    title:'Fashion partner authentication',
+    tag:'Partner Auth',
+    steps:[
+      {n:'3.1', title:'FashionPartner model', desc:'Schema: brandName, email, password, logo, description, category, isApproved (default false), isActive, socialLinks, refreshToken, timestamps', files:['models/FashionPartner.js'], postman:false},
+      {n:'3.2', title:'Partner register + login', desc:'POST /api/partner/auth/register — unique email, brand name required, awaits admin approval. POST /api/partner/auth/login — check isApproved before issuing token', files:['routes/partner.routes.js','controllers/partner.controller.js'], postman:true},
+      {n:'3.3', title:'Auth middleware (partner)', desc:'Verify partner JWT, check isApproved flag, attach req.partner. Reject unapproved partners with 403.', files:['middleware/authPartner.middleware.js'], postman:false},
+      {n:'3.4', title:'Partner profile CRUD', desc:'GET /api/partner/me, PATCH /api/partner/update-profile, PATCH /api/partner/change-password — all protected by partner middleware', files:['controllers/partner.controller.js'], postman:true},
+    ]
+  },
+  {
+    color:'p-blue', num:'04',
+    title:'File upload — ImageKit',
+    tag:'Upload',
+    steps:[
+      {n:'4.1', title:'ImageKit config', desc:'Init ImageKit SDK with publicKey, privateKey, urlEndpoint from .env. Export instance.', files:['config/imagekit.js'], postman:false},
+      {n:'4.2', title:'Multer middleware', desc:'Memory storage (buffer), file type whitelist (image/video only), max size limits (image 5MB, video 100MB), custom error messages', files:['middleware/upload.middleware.js'], postman:false},
+      {n:'4.3', title:'Upload service', desc:'uploadToImageKit(buffer, fileName, folder) — returns url, fileId, thumbnailUrl. Handles upload errors gracefully.', files:['services/imagekit.service.js'], postman:false},
+      {n:'4.4', title:'Upload API endpoints', desc:'POST /api/upload/image (partner protected), POST /api/upload/video (partner protected). Return CDN URL + fileId.', files:['routes/upload.routes.js','controllers/upload.controller.js'], postman:true},
+      {n:'4.5', title:'Delete file helper', desc:'deleteFromImageKit(fileId) — used when outfit is deleted, cleanup CDN assets', files:['services/imagekit.service.js'], postman:false},
+    ]
+  },
+  {
+    color:'p-teal', num:'05',
+    title:'Outfit items (reels core)',
+    tag:'Outfits',
+    steps:[
+      {n:'5.1', title:'OutfitItem model', desc:'Schema: partner (ref), title, description, videoUrl, videoFileId, thumbnailUrl, price, currency, sizes[], colors[], category, tags[], stock, isActive, likesCount, bookmarksCount, viewsCount, timestamps', files:['models/OutfitItem.js'], postman:false},
+      {n:'5.2', title:'Create outfit', desc:'POST /api/outfit — partner protected. Validate all fields, link uploaded video URL, save. Notify followers via socket.', files:['routes/outfit.routes.js','controllers/outfit.controller.js'], postman:true},
+      {n:'5.3', title:'Get feed (paginated)', desc:'GET /api/outfit/feed?page=1&limit=10 — only active outfits, sorted by createdAt desc, populate partner info (brandName, logo)', files:['controllers/outfit.controller.js'], postman:true},
+      {n:'5.4', title:'Get single outfit', desc:'GET /api/outfit/:id — increment viewsCount, populate partner + check if liked/bookmarked by req.user', files:['controllers/outfit.controller.js'], postman:true},
+      {n:'5.5', title:'Update outfit', desc:'PATCH /api/outfit/:id — partner protected, only owner can update, validate fields', files:['controllers/outfit.controller.js'], postman:true},
+      {n:'5.6', title:'Delete outfit', desc:'DELETE /api/outfit/:id — partner protected, delete from DB + delete video from ImageKit CDN', files:['controllers/outfit.controller.js'], postman:true},
+      {n:'5.7', title:'Get partner outfits', desc:'GET /api/outfit/partner/:partnerId — all outfits by a specific partner, paginated', files:['controllers/outfit.controller.js'], postman:true},
+    ]
+  },
+  {
+    color:'p-pink', num:'06',
+    title:'Social features',
+    tag:'Social',
+    steps:[
+      {n:'6.1', title:'Like model + toggle', desc:'Like schema: user + outfit (compound unique index). POST /api/social/like/:outfitId — toggle like, update likesCount on OutfitItem, emit socket event', files:['models/Like.js','routes/social.routes.js','controllers/social.controller.js'], postman:true},
+      {n:'6.2', title:'Bookmark model + toggle', desc:'Bookmark schema: user + outfit (compound unique). POST /api/social/bookmark/:outfitId — toggle, update bookmarksCount', files:['models/Bookmark.js','controllers/social.controller.js'], postman:true},
+      {n:'6.3', title:'Get saved looks', desc:'GET /api/social/bookmarks — user protected, paginated list of bookmarked outfits with full outfit data', files:['controllers/social.controller.js'], postman:true},
+      {n:'6.4', title:'Follow model + toggle', desc:'Follow schema: follower (user) + following (partner), unique index. POST /api/social/follow/:partnerId — toggle follow', files:['models/Follow.js','controllers/social.controller.js'], postman:true},
+      {n:'6.5', title:'Comment model + CRUD', desc:'Comment schema: user, outfit, text (maxLength 500), parentComment (for replies), likesCount. POST/GET/DELETE /api/social/comment/:outfitId', files:['models/Comment.js','controllers/social.controller.js'], postman:true},
+      {n:'6.6', title:'Reply to comment', desc:'POST /api/social/comment/:commentId/reply — nested replies with parentComment ref, validate depth (max 1 level)', files:['controllers/social.controller.js'], postman:true},
+    ]
+  },
+  {
+    color:'p-blue', num:'07',
+    title:'Search & filters',
+    tag:'Search',
+    steps:[
+      {n:'7.1', title:'Text index on OutfitItem', desc:'Add MongoDB text index on title, description, tags, category fields in OutfitItem schema', files:['models/OutfitItem.js'], postman:false},
+      {n:'7.2', title:'Search endpoint', desc:'GET /api/search?q=&category=&minPrice=&maxPrice=&size=&partner= — build dynamic query, paginate, return outfits + total count', files:['routes/search.routes.js','controllers/search.controller.js'], postman:true},
+      {n:'7.3', title:'Trending tags', desc:'GET /api/search/trending — aggregate most-used tags from OutfitItem last 7 days', files:['controllers/search.controller.js'], postman:true},
+      {n:'7.4', title:'Search partners', desc:'GET /api/search/partners?q= — search fashion partners by brandName, category', files:['controllers/search.controller.js'], postman:true},
+    ]
+  },
+  {
+    color:'p-coral', num:'08',
+    title:'Cart & orders (shopping)',
+    tag:'Shopping',
+    steps:[
+      {n:'8.1', title:'Cart model', desc:'Cart schema: user (unique), items[]: {outfit, size, color, quantity, priceAtAdd}, totalAmount. Auto-recalculate totalAmount on save.', files:['models/Cart.js'], postman:false},
+      {n:'8.2', title:'Cart CRUD', desc:'GET /api/cart, POST /api/cart/add, PATCH /api/cart/update/:itemId, DELETE /api/cart/remove/:itemId, DELETE /api/cart/clear — user protected. Validate stock availability.', files:['routes/cart.routes.js','controllers/cart.controller.js'], postman:true},
+      {n:'8.3', title:'Stripe integration', desc:'Install stripe SDK. stripeService.createPaymentIntent(amount, currency, metadata). Return clientSecret to frontend.', files:['services/stripe.service.js'], postman:false},
+      {n:'8.4', title:'Order model', desc:'Order schema: user, partner, items[], totalAmount, status (pending/confirmed/shipped/delivered/cancelled), paymentStatus, paymentIntentId, deliveryAddress, timestamps', files:['models/Order.js'], postman:false},
+      {n:'8.5', title:'Checkout endpoint', desc:'POST /api/order/checkout — validate cart not empty, create Stripe paymentIntent, create Order (status: pending), clear cart', files:['routes/order.routes.js','controllers/order.controller.js'], postman:true},
+      {n:'8.6', title:'Stripe webhook', desc:'POST /api/order/webhook — verify Stripe signature, handle payment_intent.succeeded → update order status to confirmed, notify partner + user via socket', files:['controllers/order.controller.js'], postman:false},
+      {n:'8.7', title:'Order history (user)', desc:'GET /api/order/my-orders — paginated, populate outfit info and partner info', files:['controllers/order.controller.js'], postman:true},
+      {n:'8.8', title:'Order management (partner)', desc:'GET /api/order/partner-orders — partner protected, filter by status. PATCH /api/order/:id/status — update to shipped/delivered', files:['controllers/order.controller.js'], postman:true},
+    ]
+  },
+  {
+    color:'p-amber', num:'09',
+    title:'Notifications',
+    tag:'Notifications',
+    steps:[
+      {n:'9.1', title:'Notification model', desc:'Schema: recipient (user/partner), type (like/comment/follow/order/new_outfit), message, relatedId, isRead, timestamps', files:['models/Notification.js'], postman:false},
+      {n:'9.2', title:'Notification service', desc:'createNotification(data) — save to DB + emit socket event to recipient room', files:['services/socket.service.js'], postman:false},
+      {n:'9.3', title:'Notification endpoints', desc:'GET /api/notification (paginated, unread first), PATCH /api/notification/:id/read, PATCH /api/notification/read-all, GET /api/notification/unread-count', files:['routes/notification.routes.js','controllers/notification.controller.js'], postman:true},
+    ]
+  },
+  {
+    color:'p-blue', num:'10',
+    title:'Real-time — Socket.io',
+    tag:'Socket.io',
+    steps:[
+      {n:'10.1', title:'Socket.io setup', desc:'Attach to HTTP server, configure CORS, auth middleware on connection (verify JWT from handshake auth token)', files:['config/socket.js'], postman:false},
+      {n:'10.2', title:'User rooms', desc:'On connect: join room user:userId and partner:partnerId. On disconnect: cleanup. Log connections.', files:['config/socket.js'], postman:false},
+      {n:'10.3', title:'Chat message model', desc:'Message schema: sender (user/partner), senderModel, receiver, receiverModel, text, outfitRef (optional), isRead, timestamps', files:['models/Message.js'], postman:false},
+      {n:'10.4', title:'Chat REST endpoints', desc:'GET /api/chat/conversations (list all), GET /api/chat/:partnerId/messages (history, paginated), POST /api/chat/:partnerId/send (save + emit)', files:['routes/chat.routes.js','controllers/chat.controller.js'], postman:true},
+      {n:'10.5', title:'Real-time events map', desc:'Emit: new_message, new_notification, outfit_liked, new_follower, order_status_update, new_outfit_from_followed', files:['services/socket.service.js'], postman:false},
+    ]
+  },
+  {
+    color:'p-red', num:'11',
+    title:'Admin panel',
+    tag:'Admin',
+    steps:[
+      {n:'11.1', title:'Admin model + seeder', desc:'Admin schema: email, password, role (superadmin/moderator). Seed script to create first superadmin via npm run seed:admin', files:['models/Admin.js','scripts/seedAdmin.js'], postman:false},
+      {n:'11.2', title:'Admin auth', desc:'POST /api/admin/login — separate auth, sign admin JWT with role claim. authAdmin middleware checks role.', files:['routes/admin.routes.js','controllers/admin.controller.js','middleware/authAdmin.middleware.js'], postman:true},
+      {n:'11.3', title:'Partner approval', desc:'GET /api/admin/partners (all, filter by isApproved), PATCH /api/admin/partner/:id/approve, PATCH /api/admin/partner/:id/ban', files:['controllers/admin.controller.js'], postman:true},
+      {n:'11.4', title:'User management', desc:'GET /api/admin/users (paginated, searchable), PATCH /api/admin/user/:id/ban, PATCH /api/admin/user/:id/unban', files:['controllers/admin.controller.js'], postman:true},
+      {n:'11.5', title:'Content moderation', desc:'GET /api/admin/outfits (reported), DELETE /api/admin/outfit/:id, GET /api/admin/comments (reported), DELETE /api/admin/comment/:id', files:['controllers/admin.controller.js'], postman:true},
+      {n:'11.6', title:'Platform analytics', desc:'GET /api/admin/analytics — total users, partners, outfits, orders, revenue (aggregate), daily active users (last 30 days)', files:['controllers/admin.controller.js'], postman:true},
+    ]
+  },
+  {
+    color:'p-green', num:'12',
+    title:'AI recommendations',
+    tag:'AI',
+    steps:[
+      {n:'12.1', title:'Style preference tracking', desc:'Track user interactions: likes, bookmarks, purchases → store categoryScores map on User model. Update on each interaction.', files:['models/User.js','services/ai.service.js'], postman:false},
+      {n:'12.2', title:'Recommendation engine', desc:'GET /api/ai/feed — score outfits by matching user categoryScores + trending tags + followed partners. Sort by score desc.', files:['routes/ai.routes.js','controllers/ai.controller.js','services/ai.service.js'], postman:true},
+      {n:'12.3', title:'Complete the look', desc:'GET /api/ai/complete-look/:outfitId — find outfits with overlapping tags/category from different partners', files:['controllers/ai.controller.js'], postman:true},
+      {n:'12.4', title:'Style quiz endpoint', desc:'POST /api/ai/style-quiz — accept quiz answers array, map to category weights, save to user stylePreferences', files:['controllers/ai.controller.js'], postman:true},
+    ]
+  },
+  {
+    color:'p-purple', num:'13',
+    title:'Security, validation & production hardening',
+    tag:'Hardening',
+    steps:[
+      {n:'13.1', title:'Input validation on all routes', desc:'express-validator on every POST/PATCH route. Custom sanitizeBody helper. Return 422 with field-level errors array.', files:['middleware/validate.middleware.js'], postman:false},
+      {n:'13.2', title:'Rate limiting', desc:'Global: 100 req/15min. Auth routes: 10 req/15min. Upload routes: 20 req/hour. Use express-rate-limit.', files:['server.js'], postman:false},
+      {n:'13.3', title:'Security headers', desc:'helmet(), CORS whitelist (CLIENT_URL only), XSS sanitizer (express-mongo-sanitize), hpp (HTTP param pollution)', files:['server.js'], postman:false},
+      {n:'13.4', title:'Pagination helper', desc:'Reusable getPagination(query) util: page, limit (max 50), skip. Applied consistently on all list endpoints.', files:['utils/pagination.js'], postman:false},
+      {n:'13.5', title:'API response format', desc:'Standardise all responses: {success, message, data, pagination?}. Create sendResponse(res, statusCode, message, data) helper.', files:['utils/sendResponse.js'], postman:false},
+      {n:'13.6', title:'Logging', desc:'morgan for HTTP logs. Winston logger for app-level logs (error, warn, info). Separate error.log and combined.log files.', files:['config/logger.js'], postman:false},
+      {n:'13.7', title:'Final Postman collection export', desc:'Run all endpoints, verify responses, add tests (status code, response shape). Export collection as Drip_API.json', files:[], postman:true},
+    ]
+  },
+];
+
+const root = document.getElementById('root');
+
+phases.forEach((phase, i) => {
+  const div = document.createElement('div');
+  div.className = `phase ${phase.color}`;
+
+  const header = document.createElement('div');
+  header.className = 'phase-header';
+  header.innerHTML = `
+    <div class="phase-num">${phase.num}</div>
+    <div class="phase-title">${phase.title}</div>
+    <span class="phase-tag">${phase.tag}</span>
+    <span class="toggle-icon" id="icon-${i}">&#9654;</span>
+  `;
+
+  const body = document.createElement('div');
+  body.className = 'phase-body';
+  body.id = `body-${i}`;
+
+  phase.steps.forEach(step => {
+    const stepDiv = document.createElement('div');
+    stepDiv.className = 'step';
+    const fileTags = step.files.map(f => `<span class="file-tag">${f}</span>`).join('');
+    const postmanBadge = step.postman ? `<span class="postman-tag">Postman test</span>` : '';
+    stepDiv.innerHTML = `
+      <div class="step-num">${step.n}</div>
+      <div class="step-content">
+        <div class="step-title">${step.title} ${postmanBadge}</div>
+        <div class="step-desc">${step.desc}</div>
+        ${fileTags ? `<div class="step-files">${fileTags}</div>` : ''}
+      </div>
+    `;
+    body.appendChild(stepDiv);
+  });
+
+  header.addEventListener('click', () => {
+    const isOpen = body.classList.contains('open');
+    body.classList.toggle('open', !isOpen);
+    const icon = document.getElementById(`icon-${i}`);
+    icon.classList.toggle('open', !isOpen);
+  });
+
+  div.appendChild(header);
+  div.appendChild(body);
+  root.appendChild(div);
+});
+</script>
